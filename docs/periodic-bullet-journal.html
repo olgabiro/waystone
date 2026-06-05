@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Periodic — Bullet Journal Weekly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Patrick+Hand&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);min-height:100vh;transition:background .5s ease,color .5s ease;overflow-x:hidden}
+
+[data-theme="minimal"]{
+  --bg:#f7f5f0;--surface:#ffffff;--fg:#2a2722;--muted:#a8a49e;--border:#e3dfd8;
+  --accent:#2a2722;--accent-soft:#e3dfd8;
+  --tag-meeting:#88847e;--tag-learning:#88847e;--tag-blocker:#88847e;
+  --font:'Patrick Hand',cursive;--font-mono:'Patrick Hand',cursive;
+  --radius:0;--radius-lg:0;--col-padding:12px 16px;--col-gap:8px;
+  --day-header-border:1px solid var(--border);--task-line-height:1.6;
+  --today-highlight:0 0 0 2px var(--accent);
+  --bullet-size:20px;
+}
+
+[data-theme="handwritten"]{
+  --bg:#f7efe6;--surface:#fff9f2;--fg:#4a3638;--muted:#b09592;--border:#e9d9ce;
+  --accent:#e8738a;--accent-soft:#fce8ec;--accent-hover:#d45d74;
+  --tag-meeting:#b388c8;--tag-learning:#72bba0;--tag-blocker:#e8738a;
+  --font:'Nunito',system-ui,sans-serif;--font-mono:'Nunito',system-ui,sans-serif;
+  --radius:14px;--radius-lg:18px;--col-padding:16px;--col-gap:12px;
+  --day-header-border:none;--task-line-height:1.5;
+  --shadow:0 2px 12px rgba(74,54,56,.07);--shadow-elevated:0 4px 20px rgba(74,54,56,.1);
+  --today-highlight:0 0 0 2px var(--accent);
+  --bullet-size:22px;
+}
+
+[data-theme="digital"]{
+  --bg:#16112a;--surface:rgba(255,255,255,.05);--fg:#eeeaff;--muted:#8a7fb3;--border:rgba(255,255,255,.08);
+  --accent:#f56b9c;--accent-soft:rgba(245,107,156,.12);--accent-hover:#f889b2;
+  --tag-meeting:#b794f4;--tag-learning:#4fd1c5;--tag-blocker:#f56b6b;
+  --font:'Inter',system-ui,-apple-system,sans-serif;--font-mono:ui-monospace,'JetBrains Mono',monospace;
+  --radius:10px;--radius-lg:14px;--col-padding:14px;--col-gap:10px;
+  --day-header-border:1px solid var(--border);--task-line-height:1.5;
+  --shadow:none;--shadow-elevated:0 8px 32px rgba(0,0,0,.3);
+  --today-highlight:0 0 0 1px var(--accent);
+  --bullet-size:18px;
+}
+
+.app{max-width:1440px;margin:0 auto;padding:24px 28px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px}
+.header-left{display:flex;align-items:center;gap:18px}
+.wordmark{font-size:22px;font-weight:700;letter-spacing:-.02em}
+[data-theme="minimal"] .wordmark{font-size:26px;font-weight:400}
+[data-theme="handwritten"] .wordmark{font-size:28px;font-weight:800;letter-spacing:-.01em}
+[data-theme="digital"] .wordmark{background:linear-gradient(135deg,#f56b9c,#b794f4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wordmark span{color:var(--accent)}
+[data-theme="digital"] .wordmark span{-webkit-text-fill-color:var(--accent)}
+.week-nav{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.week-nav button{background:var(--surface);border:1px solid var(--border);color:var(--fg);width:30px;height:30px;border-radius:var(--radius);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.2s;line-height:1}
+.week-nav button:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.week-label{font-weight:500;color:var(--fg);min-width:190px;text-align:center}
+[data-theme="minimal"] .week-label{font-weight:400;letter-spacing:.01em}
+.stats{font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:5px 14px;display:flex;align-items:center;gap:6px}
+[data-theme="minimal"] .stats{border-radius:0;font-size:13px}
+[data-theme="handwritten"] .stats{border-radius:20px;padding:5px 18px}
+
+.style-switcher{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:3px}
+[data-theme="minimal"] .style-switcher{border-radius:0;padding:2px}
+.style-btn{font-size:12px;font-weight:500;padding:6px 14px;border:none;border-radius:calc(var(--radius) - 2px);cursor:pointer;background:transparent;color:var(--muted);transition:.25s;white-space:nowrap}
+[data-theme="handwritten"] .style-btn{border-radius:18px;font-weight:600}
+.style-btn:hover{color:var(--fg)}
+.style-btn.active{background:var(--accent);color:var(--bg);box-shadow:var(--shadow)}
+
+.tag-bar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tag-pill{font-size:11px;font-weight:500;padding:4px 12px;border-radius:16px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.2s;user-select:none}
+[data-theme="minimal"] .tag-pill{border-radius:0;font-size:12px;padding:3px 12px;text-transform:uppercase;letter-spacing:.04em}
+.tag-pill:hover{color:var(--fg);border-color:var(--fg)}
+.tag-pill.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.tag-pill[data-tag="meeting"].active{color:var(--tag-meeting);border-color:var(--tag-meeting);background:color-mix(in srgb,var(--tag-meeting) 12%,transparent)}
+.tag-pill[data-tag="learning"].active{color:var(--tag-learning);border-color:var(--tag-learning);background:color-mix(in srgb,var(--tag-learning) 12%,transparent)}
+.tag-pill[data-tag="blocker"].active{color:var(--tag-blocker);border-color:var(--tag-blocker);background:color-mix(in srgb,var(--tag-blocker) 12%,transparent)}
+
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--col-gap);min-height:60vh;overflow-x:auto;padding-bottom:8px}
+.week-grid > *{min-width:0}
+.day-column{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--col-padding);display:flex;flex-direction:column;transition:background .3s,box-shadow .3s,border-color .3s;position:relative}
+[data-theme="minimal"] .day-column{background:transparent;border:1px solid transparent;border-radius:0;padding:10px 14px}
+[data-theme="handwritten"] .day-column{background:var(--surface);box-shadow:var(--shadow)}
+.day-column.drag-over{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.day-column.today{border-color:var(--accent);box-shadow:var(--today-highlight)}
+
+[data-theme="handwritten"] .day-column.today::after{
+  content:'';
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);
+  width:40px;height:16px;
+  background:var(--accent);border-radius:0 0 20px 20px;opacity:.7;
+}
+
+.day-header{display:flex;flex-direction:column;margin-bottom:12px;padding-bottom:10px;border-bottom:var(--day-header-border);position:relative}
+[data-theme="handwritten"] .day-header{padding-bottom:12px;margin-bottom:14px}
+[data-theme="minimal"] .day-header{padding-bottom:8px;margin-bottom:10px}
+.day-name{font-size:15px;font-weight:700;color:var(--fg);letter-spacing:-.01em}
+[data-theme="minimal"] .day-name{font-weight:400;font-size:16px;letter-spacing:.02em;text-transform:uppercase}
+[data-theme="handwritten"] .day-name{font-size:18px;font-weight:800}
+.day-date{font-size:11px;color:var(--muted);margin-top:1px}
+[data-theme="minimal"] .day-date{font-size:12px}
+[data-theme="handwritten"] .day-date{font-size:12px;margin-top:0}
+.day-count{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.02em}
+[data-theme="minimal"] .day-count{font-size:11px;letter-spacing:0}
+.today-badge{display:inline-block;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-top:3px}
+[data-theme="minimal"] .today-badge{letter-spacing:.08em;font-size:9px}
+
+.task-list{flex:1;display:flex;flex-direction:column;gap:6px;min-height:40px;padding-bottom:2px}
+[data-theme="minimal"] .task-list{gap:0}
+[data-theme="handwritten"] .task-list{gap:8px}
+
+.task-card{background:var(--task-bg);border:var(--task-border);border-radius:var(--radius);cursor:grab;transition:.2s;position:relative;user-select:none}
+.task-card:hover{box-shadow:var(--shadow-elevated)}
+.task-card.dragging{opacity:.3;box-shadow:none;transform:none}
+.task-card.done{opacity:.55}
+.task-card.done .task-text{text-decoration:line-through;text-decoration-color:var(--muted)}
+.task-card.done .task-bullet{opacity:.4}
+
+[data-theme="minimal"] .task-card{
+  background:transparent;border:none;border-radius:0;padding:2px 0;
+  cursor:grab;display:flex;align-items:baseline;gap:6px;line-height:var(--task-line-height);
+}
+[data-theme="minimal"] .task-card:hover{box-shadow:none;transform:none}
+[data-theme="minimal"] .task-card.dragging{opacity:.2}
+[data-theme="minimal"] .task-card.done{opacity:.5}
+
+[data-theme="handwritten"] .task-card{
+  background:var(--task-bg);border:none;border-radius:var(--radius);padding:10px 12px;
+  box-shadow:var(--shadow);
+}
+[data-theme="handwritten"] .task-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-elevated)}
+
+[data-theme="digital"] .task-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;
+  backdrop-filter:blur(4px);
+}
+
+.task-row{display:flex;align-items:flex-start;gap:8px;width:100%}
+[data-theme="minimal"] .task-row{gap:4px;align-items:baseline}
+
+.task-bullet{
+  flex-shrink:0;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;
+  user-select:none;line-height:1;
+}
+[data-theme="minimal"] .task-bullet{
+  width:auto;height:auto;font-size:18px;color:var(--fg);margin-top:0;margin-right:2px;border:none;background:none;border-radius:0;
+}
+[data-theme="minimal"] .task-card.done .task-bullet{color:var(--muted)}
+[data-theme="handwritten"] .task-bullet{
+  width:var(--bullet-size);height:var(--bullet-size);border-radius:50%;
+  border:2px solid var(--border);background:transparent;font-size:11px;color:transparent;margin-top:1px;
+}
+[data-theme="handwritten"] .task-card.done .task-bullet{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="digital"] .task-bullet{
+  width:var(--bullet-size);height:var(--bullet-size);border-radius:6px;
+  border:1.5px solid var(--border);background:transparent;font-size:11px;color:transparent;margin-top:1px;
+}
+[data-theme="digital"] .task-card.done .task-bullet{background:var(--accent);border-color:var(--accent);color:#1a1025}
+
+.task-body{flex:1;min-width:0}
+.task-time{font-size:11px;color:var(--muted);letter-spacing:.01em;margin-bottom:1px;line-height:1.4}
+[data-theme="minimal"] .task-time{font-size:13px;display:inline;margin-right:6px;letter-spacing:0}
+[data-theme="minimal"] .task-text{font-size:15px;display:inline;line-height:var(--task-line-height)}
+[data-theme="handwritten"] .task-text{font-size:14px;line-height:1.5}
+[data-theme="handwritten"] .task-time{font-size:12px;margin-bottom:2px;font-weight:500}
+.task-tags{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+[data-theme="minimal"] .task-tags{display:inline;margin-top:0;margin-left:4px}
+[data-theme="minimal"] .task-tag{display:inline;font-size:11px;padding:0;background:none;border-radius:0;margin-right:4px}
+[data-theme="handwritten"] .task-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;letter-spacing:.02em}
+[data-theme="digital"] .task-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;letter-spacing:.02em}
+.task-tag.tag-meeting{background:color-mix(in srgb,var(--tag-meeting) 14%,transparent);color:var(--tag-meeting)}
+.task-tag.tag-learning{background:color-mix(in srgb,var(--tag-learning) 14%,transparent);color:var(--tag-learning)}
+.task-tag.tag-blocker{background:color-mix(in srgb,var(--tag-blocker) 14%,transparent);color:var(--tag-blocker)}
+
+.obsidian-toggle{font-size:10px;color:var(--muted);cursor:pointer;padding:3px 0;opacity:.4;transition:.2s;display:inline-block;margin-top:2px}
+.obsidian-toggle:hover{opacity:1;color:var(--accent)}
+.obsidian-source{font-family:var(--font-mono);font-size:11px;color:var(--muted);line-height:1.5;padding:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-top:4px;display:none;white-space:pre-wrap;word-break:break-all}
+[data-theme="minimal"] .obsidian-source{border-radius:0;font-family:'Patrick Hand',cursive;font-size:13px}
+.obsidian-source.visible{display:block}
+
+.quick-add{display:flex;gap:8px;margin-top:20px}
+.quick-add input{flex:1;font-family:var(--font);font-size:13px;color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 14px;outline:none;transition:.2s}
+[data-theme="minimal"] .quick-add input{border-radius:0;font-family:'Patrick Hand',cursive;font-size:16px}
+[data-theme="handwritten"] .quick-add input{border-radius:20px;font-family:'Nunito',system-ui,sans-serif;font-size:14px}
+.quick-add input:focus{border-color:var(--accent)}
+.quick-add input::placeholder{color:var(--muted);opacity:.5}
+.quick-add button{font-size:13px;font-weight:600;padding:9px 20px;border:none;border-radius:var(--radius);background:var(--accent);color:var(--bg);cursor:pointer;transition:.2s}
+[data-theme="minimal"] .quick-add button{border-radius:0;font-family:'Patrick Hand',cursive;font-size:15px}
+[data-theme="handwritten"] .quick-add button{border-radius:20px;font-weight:700}
+.quick-add button:hover{background:var(--accent-hover)}
+[data-theme="digital"] .quick-add button{background:linear-gradient(135deg,var(--accent),var(--tag-meeting))}
+
+.empty-state{font-size:12px;color:var(--muted);opacity:.4;text-align:center;padding:12px 0;font-style:italic}
+[data-theme="minimal"] .empty-state{font-style:normal;font-size:13px;padding:8px 0}
+
+[data-theme="handwritten"] .day-column::before{
+  content:'✦';position:absolute;top:-6px;right:12px;font-size:10px;color:var(--accent);opacity:.5;
+}
+
+.week-grid::-webkit-scrollbar{height:6px}
+.week-grid::-webkit-scrollbar-track{background:transparent}
+.week-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+[data-theme="digital"] .day-column{backdrop-filter:blur(8px)}
+[data-theme="digital"] .style-switcher{background:transparent;border-color:rgba(255,255,255,.06)}
+
+@media(max-width:1024px){
+  .week-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:768px){
+  .week-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .app{padding:14px}
+  header{flex-direction:column;align-items:stretch;gap:10px}
+  .header-left{flex-wrap:wrap}
+  .week-label{min-width:auto}
+}
+@media(max-width:480px){
+  .week-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header>
+    <div class="header-left">
+      <div class="wordmark">periodic<span>.</span></div>
+      <div class="week-nav">
+        <button id="prevWeek" title="Previous week">←</button>
+        <span class="week-label" id="weekLabel">Week of June 1, 2026</span>
+        <button id="nextWeek" title="Next week">→</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="stats" id="statsBar">● <span id="statsText">0/0 done</span></div>
+      <div class="style-switcher">
+        <button class="style-btn" data-theme="minimal">● Minimal</button>
+        <button class="style-btn active" data-theme="handwritten">✎ Handwritten</button>
+        <button class="style-btn" data-theme="digital">◈ Digital</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="tag-bar" id="tagBar">
+    <button class="tag-pill active" data-tag="all">All</button>
+    <button class="tag-pill" data-tag="meeting">#meeting</button>
+    <button class="tag-pill" data-tag="learning">#learning</button>
+    <button class="tag-pill" data-tag="blocker">#blocker</button>
+  </div>
+
+  <div class="week-grid" id="weekGrid"></div>
+
+  <div class="quick-add">
+    <input id="quickInput" placeholder='- [ ] 14:00 - 15:00 Review designs #meeting' spellcheck="false">
+    <button id="quickAddBtn">+ Add</button>
+  </div>
+</div>
+
+<script>
+const WEEK_DATA = {
+  "2026-06-01": [
+    { id:"m1", time:"09:00 - 10:30", text:"Design review for Q3 campaign", tags:["meeting"], done:false },
+    { id:"m2", time:"11:00 - 12:00", text:"Component library architecture patterns", tags:["learning"], done:false },
+    { id:"m3", time:"14:00 - 15:00", text:"Fix auth flow redirect bug", tags:["blocker"], done:true },
+    { id:"m4", time:"16:00 - 17:00", text:"Update onboarding documentation", tags:[], done:false }
+  ],
+  "2026-06-02": [
+    { id:"t1", time:"09:30 - 11:00", text:"Sprint planning & story mapping", tags:["meeting"], done:false },
+    { id:"t2", time:"11:30 - 12:30", text:"Rust async patterns study group", tags:["learning"], done:true },
+    { id:"t3", time:"14:00 - 15:30", text:"API integration — payment provider", tags:["blocker"], done:false },
+    { id:"t4", time:"16:00 - 16:30", text:"Weekly 1:1 with Alex", tags:["meeting"], done:false }
+  ],
+  "2026-06-03": [
+    { id:"w1", time:"10:00 - 11:00", text:"Weekly sync w/ design team", tags:["meeting"], done:true },
+    { id:"w2", time:"11:30 - 13:00", text:"Research animation libraries for product", tags:["learning"], done:false },
+    { id:"w3", time:"15:00 - 16:00", text:"Database migration prep — schema review", tags:["blocker"], done:false }
+  ],
+  "2026-06-04": [
+    { id:"th1", time:"09:00 - 10:30", text:"Portfolio review prep presentation", tags:["meeting"], done:false },
+    { id:"th2", time:"11:00 - 12:30", text:"Accessibility patterns — focus management", tags:["learning"], done:false },
+    { id:"th3", time:"14:00 - 15:00", text:"Unblock design handoff for mobile team", tags:["blocker"], done:false },
+    { id:"th4", time:"15:30 - 16:30", text:"Process retro — what's working", tags:["meeting"], done:false }
+  ],
+  "2026-06-05": [
+    { id:"f1", time:"10:00 - 11:00", text:"Sprint retrospective", tags:["meeting"], done:false },
+    { id:"f2", time:"13:00 - 14:00", text:"Personal project — creative coding", tags:["learning"], done:false }
+  ],
+  "2026-06-06": [
+    { id:"s1", time:"10:00 - 12:00", text:"Side project — prototype new feature", tags:["learning"], done:false },
+    { id:"s2", time:"15:00 - 16:00", text:"Sketch out talk ideas for conference", tags:[], done:false }
+  ],
+  "2026-06-07": []
+};
+
+const DAY_LABELS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const BULLET_SYMBOLS = {
+  task: '\u2022',
+  done: '\u00D7',
+  event: '\u25CB',
+  note: '\u2014'
+};
+
+let currentTheme = "handwritten";
+let currentWeekStart = new Date(2026, 5, 1);
+let activeTag = "all";
+let dragSource = null;
+let data = {};
+let taskCounter = 100;
+
+function cloneData() {
+  const d = {};
+  for (const [k, v] of Object.entries(WEEK_DATA)) d[k] = v.map(t => ({...t}));
+  return d;
+}
+function resetData() { data = cloneData(); }
+resetData();
+
+function dateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getWeekDates(start) {
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function formatWeekLabel(start) {
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const opts = { month: 'long', day: 'numeric' };
+  return `${start.toLocaleDateString('en-US', opts)} \u2013 ${end.toLocaleDateString('en-US', opts)}`;
+}
+
+function hashId(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i);
+  return Math.abs(h);
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderTask(t, dateStr) {
+  const tagHTML = t.tags.map(tag => `<span class="task-tag tag-${tag}">#${tag}</span>`).join('');
+
+  if (currentTheme === 'minimal') {
+    const bullet = t.done ? BULLET_SYMBOLS.done : BULLET_SYMBOLS.task;
+    return `
+      <div class="task-card ${t.done ? 'done' : ''}" draggable="true" data-task-id="${t.id}" data-date="${dateStr}">
+        <div class="task-row">
+          <span class="task-bullet" data-task-id="${t.id}">${bullet}</span>
+          <div class="task-body">
+            <span class="task-time">${escHtml(t.time)}</span>
+            <span class="task-text">${escHtml(t.text)}</span>
+            ${tagHTML ? `<span class="task-tags">${tagHTML}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const bullet = t.done ? '\u2713' : '';
+  return `
+    <div class="task-card ${t.done ? 'done' : ''}" draggable="true" data-task-id="${t.id}" data-date="${dateStr}">
+      <div class="task-row">
+        <div class="task-bullet" data-task-id="${t.id}">${bullet}</div>
+        <div class="task-body">
+          <div class="task-time">${t.time}</div>
+          <div class="task-text">${escHtml(t.text)}</div>
+          ${tagHTML ? `<div class="task-tags">${tagHTML}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const grid = document.getElementById('weekGrid');
+  const dates = getWeekDates(currentWeekStart);
+  const today = new Date(2026, 5, 4);
+  const todayStr = dateStr(today);
+  let totalTasks = 0, doneTasks = 0;
+
+  grid.innerHTML = '';
+
+  dates.forEach(date => {
+    const ds = dateStr(date);
+    const dayData = data[ds] || [];
+    const isToday = ds === todayStr;
+    const tasks = activeTag === 'all' ? dayData : dayData.filter(t => t.tags.includes(activeTag));
+
+    totalTasks += dayData.length;
+    doneTasks += dayData.filter(t => t.done).length;
+
+    const col = document.createElement('div');
+    col.className = 'day-column' + (isToday ? ' today' : '');
+    col.dataset.date = ds;
+
+    col.innerHTML = `
+      <div class="day-header">
+        <div class="day-name">${DAY_LABELS[date.getDay()]}</div>
+        <div class="day-date">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+        ${isToday ? '<div class="today-badge">today</div>' : ''}
+        <div class="day-count">${dayData.length} task${dayData.length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="task-list" data-date="${ds}">
+        ${tasks.length === 0 ? '<div class="empty-state">\u2014 clear \u2014</div>' : ''}
+        ${tasks.map(t => renderTask(t, ds)).join('')}
+      </div>
+      <button class="obsidian-toggle" data-date="${ds}">\u223C source</button>
+      <div class="obsidian-source" data-date="${ds}">${toObsidianSource(dayData)}</div>
+    `;
+
+    col.addEventListener('dragover', onDragOver);
+    col.addEventListener('dragenter', onDragEnter);
+    col.addEventListener('dragleave', onDragLeave);
+    col.addEventListener('drop', onDrop);
+
+    grid.appendChild(col);
+  });
+
+  document.getElementById('statsBar').innerHTML = `\u25CF <span id="statsText">${doneTasks}/${totalTasks} done</span>`;
+  document.getElementById('weekLabel').textContent = formatWeekLabel(currentWeekStart);
+
+  document.querySelectorAll('.obsidian-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const ds = btn.dataset.date;
+      const src = document.querySelector(`.obsidian-source[data-date="${ds}"]`);
+      src.classList.toggle('visible');
+      btn.textContent = src.classList.contains('visible') ? '\u223C hide' : '\u223C source';
+    });
+  });
+
+  document.querySelectorAll('.task-bullet').forEach(el => {
+    el.addEventListener('click', (e) => {
+      toggleTask(el.dataset.taskId);
+      e.stopPropagation();
+    });
+  });
+}
+
+document.addEventListener('dragstart', (e) => {
+  const card = e.target.closest('.task-card');
+  if (!card) return;
+  dragSource = { id: card.dataset.taskId, date: card.dataset.date };
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', card.dataset.taskId);
+});
+
+document.addEventListener('dragend', () => {
+  document.querySelectorAll('.task-card.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.day-column.drag-over').forEach(el => el.classList.remove('drag-over'));
+});
+
+function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDragEnter(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function onDragLeave(e) {
+  const col = e.currentTarget;
+  if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+}
+function onDrop(e) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  col.classList.remove('drag-over');
+  const targetDate = col.dataset.date;
+  if (!dragSource || !targetDate || dragSource.date === targetDate) { dragSource = null; return; }
+  const task = findTaskById(dragSource.id);
+  if (!task) { dragSource = null; return; }
+  const srcArr = data[dragSource.date];
+  const idx = srcArr.findIndex(t => t.id === dragSource.id);
+  if (idx > -1) srcArr.splice(idx, 1);
+  if (!data[targetDate]) data[targetDate] = [];
+  data[targetDate].push(task);
+  dragSource = null;
+  render();
+}
+
+function findTaskById(id) {
+  for (const tasks of Object.values(data)) {
+    const found = tasks.find(t => t.id === id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function toggleTask(id) {
+  for (const tasks of Object.values(data)) {
+    const t = tasks.find(task => task.id === id);
+    if (t) { t.done = !t.done; render(); return; }
+  }
+}
+
+function addTaskFromObsidian(dateStr, raw) {
+  if (!data[dateStr]) data[dateStr] = [];
+  const task = parseObsidianTask(raw);
+  task.id = 't' + (taskCounter++);
+  data[dateStr].push(task);
+  render();
+}
+
+function parseObsidianTask(line) {
+  const done = line.includes('[x]');
+  const timeMatch = line.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+  const time = timeMatch ? `${timeMatch[1]} - ${timeMatch[2]}` : '';
+  const tagMatch = line.match(/#(\w+)/g);
+  const tags = tagMatch ? tagMatch.map(t => t.slice(1)) : [];
+  let text = line.replace(/^-\s*\[.\]\s*/, '').trim();
+  if (timeMatch) text = text.replace(timeMatch[0], '').trim();
+  tagMatch?.forEach(t => { text = text.replace(t, '').trim(); });
+  return { id:'', time, text: text || 'untitled task', tags, done };
+}
+
+function toObsidianSource(tasks) {
+  return tasks.map(t => {
+    const check = t.done ? 'x' : ' ';
+    const tags = t.tags.map(tag => `#${tag}`).join(' ');
+    return `- [${check}] ${t.time} ${t.text} ${tags}`.trim();
+  }).join('\n') || '# no tasks';
+}
+
+document.getElementById('quickAddBtn').addEventListener('click', () => {
+  const input = document.getElementById('quickInput');
+  const val = input.value.trim();
+  if (!val) return;
+  const today = new Date(2026, 5, 4);
+  addTaskFromObsidian(dateStr(today), val);
+  input.value = '';
+});
+document.getElementById('quickInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('quickAddBtn').click();
+});
+
+document.querySelectorAll('.style-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTheme = btn.dataset.theme;
+    document.documentElement.dataset.theme = currentTheme;
+    render();
+  });
+});
+
+document.querySelectorAll('.tag-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.tag-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    activeTag = pill.dataset.tag;
+    render();
+  });
+});
+
+document.getElementById('prevWeek').addEventListener('click', () => {
+  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+  render();
+});
+document.getElementById('nextWeek').addEventListener('click', () => {
+  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  render();
+});
+
+document.documentElement.dataset.theme = currentTheme;
+render();
+</script>
+</body>
+</html>
