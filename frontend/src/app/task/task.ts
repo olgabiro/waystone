@@ -1,5 +1,5 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
-import {TaskService} from './taskService';
+import {TaskApi} from './task-api';
 
 @Component({
   selector: 'app-task',
@@ -11,7 +11,7 @@ import {TaskService} from './taskService';
 export class Task implements OnInit {
 
   task = signal(['']);
-  private readonly taskService = inject(TaskService);
+  private readonly taskService = inject(TaskApi);
 
 
   ngOnInit() {

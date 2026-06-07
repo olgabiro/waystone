@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 @Service()
-export class TaskService {
+export class TaskApi {
 
   private readonly httpClient = inject(HttpClient);
 
