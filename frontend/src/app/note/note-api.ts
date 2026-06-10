@@ -1,26 +1,13 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { NoteDto } from './note-model';
-import { TaskStatus } from '../task/task-model';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Service()
 export class NoteApi {
-  getNote(id: string): NoteDto {
-    return {
-      id,
-      tasks: [
-        {
-          text: 'first task',
-          status: TaskStatus.OPEN,
-          tags: ['meeting', 'urgent'],
-        },
-        {
-          text: 'second task',
-          status: TaskStatus.COMPLETED,
-          tags: [],
-        },
-      ],
-      focus: [],
-      notes: [],
-    };
+  private readonly httpClient = inject(HttpClient);
+
+  getNote(id: string): Observable<NoteDto> {
+    return this.httpClient.get<NoteDto>(`http://localhost:3000/notes/${id}`);
   }
 }

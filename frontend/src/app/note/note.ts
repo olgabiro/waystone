@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NoteApi } from './note-api';
-import { NoteDto } from './note-model';
 import { TaskStatus } from '../task/task-model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-note',
@@ -11,16 +12,12 @@ import { TaskStatus } from '../task/task-model';
   styleUrl: './note.css',
 })
 export class Note {
-  note = signal<NoteDto | null>(null);
-  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly noteApi = inject(NoteApi);
 
-  constructor() {
-    this.activatedRoute.params.subscribe((params) => {
-      const id = params['id'];
-      this.note.set(this.noteApi.getNote(id));
-    });
-  }
+  protected note = toSignal(
+    inject(ActivatedRoute).params.pipe(switchMap((params) => this.noteApi.getNote(params['id']))),
+    { initialValue: null },
+  );
 
   protected readonly TaskStatus = TaskStatus;
 }
